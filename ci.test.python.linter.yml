@@ -1,0 +1,7 @@
+lint:
+  image: $CI_REGISTRY/devops/docker/python/linter:1
+  stage: test
+  tags:
+    - docker
+  script:
+    - make lint
