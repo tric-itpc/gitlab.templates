@@ -1,0 +1,28 @@
+._build: &_build
+  services:
+    - docker:dind
+  stage: build
+  before_script:   
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+  tags:     
+    - dind
+production:
+  <<: *_build
+  only: 
+    - master
+  script:
+    - docker image build -t $CI_REGISTRY_IMAGE --no-cache --rm --pull .
+    - docker image push $CI_REGISTRY_IMAGE
+develop:
+  <<: *_build
+  only: 
+    - develop
+  script:
+    - docker image build -t $CI_PROJECT_NAME:$CI_JOB_ID --no-cache --rm --pull .
+tag:
+  <<: *_build
+  only: 
+    - /^v\d+\.[\.0-9]*$/
+  script:
+    - docker image build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG --no-cache --rm --pull .
+    - docker image push $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
